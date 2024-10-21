@@ -1,22 +1,25 @@
 # manifest.pp
 
+# Define PowerShell path for ease of use
+$powershell_path = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+
 # Pin "This PC" to Taskbar
 exec { 'Pin This PC':
-  command => 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command "$shell = New-Object -ComObject Shell.Application; $folder = $shell.NameSpace(0); $folder.Items() | Where-Object { $_.Name -eq \'This PC\' } | ForEach-Object { $_.InvokeVerb(\'pin to taskbar\') }"',
-  onlyif => 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command "$shell = New-Object -ComObject Shell.Application; $folder = $folder.NameSpace(0); $folder.Items() | Where-Object { $_.Name -eq \'This PC\' -and $_.IsLink } | Measure-Object | Select-Object -ExpandProperty Count -eq 0"',
+  command => "${powershell_path} -Command \"\$shell = New-Object -ComObject Shell.Application; \$folder = \$shell.NameSpace(0); \$folder.Items() | Where-Object { \$_.Name -eq 'This PC' } | ForEach-Object { \$_.InvokeVerb('pin to taskbar') }\"",
+  onlyif => "${powershell_path} -Command \"\$shell = New-Object -ComObject Shell.Application; \$folder = \$folder.NameSpace(0); \$folder.Items() | Where-Object { \$_.Name -eq 'This PC' -and \$_.IsLink }\"",
 }
 
 
 # Rename Computer to Station Name
 $station_name = 'Ahmed-ramadan'  # Replace with the actual station name
 exec { 'Rename Computer':
-  command => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"Rename-Computer -NewName '$station_name' -Force -Restart\"",
-  unless  => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"(Get-WmiObject -Class Win32_ComputerSystem).Name -eq '$station_name'\"",
-}	
+  command => "${powershell_path} -Command \"Rename-Computer -NewName '$station_name' -Force -Restart\"",
+  unless  => "${powershell_path} -Command \"(Get-WmiObject -Class Win32_ComputerSystem).Name -eq '$station_name'\"",
+}
 
 # Remove All Icons from Desktop
 exec { 'Remove Desktop Icons':
-  command => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"Get-ChildItem -Path 'C:\\Users\\CarGas\\Desktop' | Remove-Item -Force\"",
+  command => "${powershell_path} -Command \"Get-ChildItem -Path 'C:\\Users\\CarGas\\Desktop' | Remove-Item -Force\"",
   require => Exec['Rename Computer'],
 }
 
@@ -26,17 +29,18 @@ exec { 'Remove Desktop Icons':
   #require => Exec['Remove Desktop Icons'],
 #}
 
-#Enable Remote desktop
+# Enable Remote Desktop
 exec { 'Enable Remote Desktop':
-  command => 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command "Set-ItemProperty -Path \'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\' -Name \'fDenyTSConnections\' -Value 0; Enable-NetFirewallRule -DisplayGroup \'Remote Desktop\'"',
-  onlyif => 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command "Get-ItemProperty -Path \'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\' -Name \'fDenyTSConnections\' | Select-Object -ExpandProperty fDenyTSConnections -eq 1"',
+  command => "${powershell_path} -Command \"Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server' -Name 'fDenyTSConnections' -Value 0; Enable-NetFirewallRule -DisplayName 'Remote Desktop'\"",
+  onlyif => "${powershell_path} -Command \"Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server' -Name 'fDenyTSConnections' | Select-Object -ExpandProperty fDenyTSConnections -eq 1\"",
 }
-#Firewall& Network turn off
 
+# Disable Windows Firewall
 exec { 'Disable Windows Firewall':
-  command => 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command "Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False"',
-  onlyif => 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command "Get-NetFirewallProfile | Where-Object { $_.Enabled -eq \'True\' } | Measure-Object | Select-Object -ExpandProperty Count -gt 0"',
+  command => "${powershell_path} -Command \"Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False\"",
+  onlyif => "${powershell_path} -Command \"Get-NetFirewallProfile | Where-Object { \$_.Enabled -eq 'True' } | Measure-Object | Select-Object -ExpandProperty Count -gt 0\"",
 }
+
 #Background Services>Disabled
 exec { 'Disable BITS':
   command => 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command "Set-Service -Name BITS -StartupType Disabled; Stop-Service -Name BITS -Force"',
@@ -108,4 +112,4 @@ exec { 'Disable PrintAndDocumentServices':
     path    => ['C:\\Windows\\System32'],
     unless  => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"Get-WindowsOptionalFeature -Online | Where-Object { $_.FeatureName -eq 'PrintAndDocumentServices' -and $_.State -eq 'Disabled' }\"",
 }	
-#Enter New password
+
