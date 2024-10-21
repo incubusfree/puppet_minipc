@@ -1,5 +1,3 @@
-# manifest.pp
-
 node 'ahmed-ramadan' {
 # Define PowerShell path for ease of use
 $powershell_path = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
