@@ -1,5 +1,6 @@
 # manifest.pp
 
+node 'ahmed-ramadan' {
 # Define PowerShell path for ease of use
 $powershell_path = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
 
@@ -11,10 +12,9 @@ exec { 'Pin This PC':
 
 
 # Rename Computer to Station Name
-$station_name = 'Ahmed-ramadan'  # Replace with the actual station name
 exec { 'Rename Computer':
-  command => "${powershell_path} -Command \"Rename-Computer -NewName '$station_name' -Force -Restart\"",
-  unless  => "${powershell_path} -Command \"(Get-WmiObject -Class Win32_ComputerSystem).Name -eq '$station_name'\"",
+  command => "${powershell_path} -Command \"Rename-Computer -NewName 'Ahmed-Ramadan' -Force -Restart\"",
+  unless  => "${powershell_path} -Command \"(Get-WmiObject -Class Win32_ComputerSystem).Name -eq 'Ahmed-Ramadan'\"",
 }
 
 # Remove All Icons from Desktop
@@ -61,13 +61,18 @@ exec { 'Set AutoAdminLogon':
   onlyif => 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command "Get-ItemProperty -Path \'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI\' -Name \'AutoAdminLogon\' | Where-Object { $_.AutoAdminLogon -ne 1}"',
 }
 
-
 #Power management uncheck turn off this device to save Power
-
-exec { 'Disable Power Management for Device':
-  command => 'C:\Windows\System32\powercfg.exe -devicequery "CarGas" | ForEach-Object { powercfg -change -devicepower "CarGas" 0 }',
-  onlyif  => 'C:\Windows\System32\powercfg.exe -devicequery "CarGas" | ForEach-Object { powercfg -devicequery "CarGas" | Select-String "Power Saving Mode" }',
+# Power management uncheck turn off this device to save Power
+exec { 'Disable Wake on Magic Packet':
+  command => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"Set-NetAdapterAdvancedProperty -Name 'Ethernet' -DisplayName 'Wake on Magic Packet' -DisplayValue 'Disabled'\"",
+  onlyif  => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"(Get-NetAdapterAdvancedProperty -Name 'Ethernet' -DisplayName 'Wake on Magic Packet').DisplayValue -eq 'Enabled'\"",
 }
+
+exec { 'Disable Wake on Pattern Match':
+  command => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"Set-NetAdapterAdvancedProperty -Name 'Ethernet' -DisplayName 'Wake on Pattern Match' -DisplayValue 'Disabled'\"",
+  onlyif  => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"(Get-NetAdapterAdvancedProperty -Name 'Ethernet' -DisplayName 'Wake on Pattern Match').DisplayValue -eq 'Enabled'\"",
+}
+
 
 #never turn off the display
 exec { 'turn_off_display':
@@ -113,3 +118,4 @@ exec { 'Disable PrintAndDocumentServices':
     unless  => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"Get-WindowsOptionalFeature -Online | Where-Object { $_.FeatureName -eq 'PrintAndDocumentServices' -and $_.State -eq 'Disabled' }\"",
 }	
 
+}
