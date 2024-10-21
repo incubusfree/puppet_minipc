@@ -24,10 +24,10 @@ exec { 'Remove Desktop Icons':
 }
 
 # Adjust Date and Time & Activate Windows Automatically
-#exec { 'Sync Date and Time & Activate Windows':
- # command => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"w32tm /resync; slmgr /ato\"",
-  #require => Exec['Remove Desktop Icons'],
-#}
+exec { 'Sync Date and Time & Activate Windows':
+  command => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"w32tm /resync; slmgr /ato\"",
+  require => Exec['Remove Desktop Icons'],
+}
 
 # Enable Remote Desktop
 exec { 'Enable Remote Desktop':
