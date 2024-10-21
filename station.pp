@@ -62,7 +62,6 @@ exec { 'Set AutoAdminLogon':
 }
 
 #Power management uncheck turn off this device to save Power
-# Power management uncheck turn off this device to save Power
 exec { 'Disable Wake on Magic Packet':
   command => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"Set-NetAdapterAdvancedProperty -Name 'Ethernet' -DisplayName 'Wake on Magic Packet' -DisplayValue 'Disabled'\"",
   onlyif  => "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"(Get-NetAdapterAdvancedProperty -Name 'Ethernet' -DisplayName 'Wake on Magic Packet').DisplayValue -eq 'Enabled'\"",
