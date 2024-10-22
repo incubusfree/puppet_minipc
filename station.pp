@@ -144,6 +144,25 @@ exec { 'Install SQL from USB':
   require   => Exec['Check USB Drive'],
 }
 
+# Define Inbound Rule for SQL
+exec { 'create_inbound_sql_rule':
+  command => 'New-NetFirewallRule -DisplayName "sql conn" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action Allow -Profile Domain,Public',
+  provider => powershell,
+  unless  => 'Get-NetFirewallRule -DisplayName "sql conn" -ErrorAction SilentlyContinue',
+}
+
+# Define Outbound Rule for SQL
+exec { 'create_outbound_sql_rule':
+  command => 'New-NetFirewallRule -DisplayName "sql conn" -Direction Outbound -Protocol TCP -LocalPort 1433 -Action Allow -Profile Domain,Public',
+  provider => powershell,
+  unless  => 'Get-NetFirewallRule -DisplayName "sql conn" -ErrorAction SilentlyContinue',
+}
+
+# This ensures the rules are applied for the default node
+node default {
+  # Apply the firewall rules
+  include sql_firewall_rule
+}
 
 }
 
