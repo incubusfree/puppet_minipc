@@ -1,8 +1,6 @@
-node 'default' {
-  # Define CMD and PowerShell path for ease of use
+node 'ahmed-ramadan' {
+  # Define PowerShell path for ease of use
   $powershell_path = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
-$cmd = 'C:\Windows\System32\cmd.exe'
-
 
   #T1 Pin "This PC" to Taskbar
   exec { 'Pin This PC':
@@ -12,11 +10,11 @@ $cmd = 'C:\Windows\System32\cmd.exe'
   }
 
   #T2 Rename Computer to Station Name
-  #exec { 'Rename Computer':
-   # command => "${powershell_path} -Command \"Rename-Computer -NewName 'Ahmed-Ramadan' -Force -Restart\"",
-   # unless  => "${powershell_path} -Command \"(Get-WmiObject -Class Win32_ComputerSystem).Name -eq 'Ahmed-Ramadan'\"",
-    #logoutput => true,
-  #}
+  exec { 'Rename Computer':
+    command => "${powershell_path} -Command \"Rename-Computer -NewName 'Ahmed-Ramadan' -Force -Restart\"",
+    unless  => "${powershell_path} -Command \"(Get-WmiObject -Class Win32_ComputerSystem).Name -eq 'Ahmed-Ramadan'\"",
+    logoutput => true,
+  }
 
   #T3 Remove All Icons from Desktop
   exec { 'Remove Desktop Icons':
@@ -79,7 +77,7 @@ $cmd = 'C:\Windows\System32\cmd.exe'
    # command => "${powershell_path} -Command \"Set-NetAdapterAdvancedProperty -Name 'Ethernet' -DisplayName 'Wake on Pattern Match' -DisplayValue 'Disabled'\"",
    # onlyif  => "${powershell_path} -Command \"(Get-NetAdapterAdvancedProperty -Name 'Ethernet' -DisplayName 'Wake on Pattern Match').DisplayValue -eq 'Enabled'\"",
     #logoutput => true,
-#  }
+ # }
 
   #T12 Never turn off the display
   exec { 'turn_off_display':
@@ -119,44 +117,5 @@ $cmd = 'C:\Windows\System32\cmd.exe'
     #unless  => "${powershell_path} -Command \"Get-WindowsOptionalFeature -Online | Where-Object { \$_.FeatureName -eq 'Printing-Foundation-Features' -and \$_.State -eq 'Disabled' }\"",
     logoutput => true,
   }
-#T18 Ensure the USB drive (D:) is available
-exec { 'Check USB Drive':
-  command   => '${cmd} /c "if exist D:\ (echo USB drive found) else (echo USB drive not found)"',
-  logoutput => true,
-}
-
-exec { 'Install Python from USB':
-  command   => 'D:\\MiniPC\\python-3.12.6-amd64.exe /silent',  # Adjust the installation command as needed
-  logoutput => true,
-  require   => Exec['Check USB Drive'],
-}
-
-exec { 'Install SQL from USB':
-  command   => 'D:\\MiniPC\\SQL\\SSMS-Setup-ENU.exe /silent',  # Adjust the installation command as needed
-  logoutput => true,
-  require   => Exec['Check USB Drive'],
-}
-
 
 }
-
-#node 'ahmed-ramadan'{
-  # Define PowerShell path for ease of use
- # $powershell_path = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
-#exec { 'Rename Computer':
- #   command => "${powershell_path} -Command \"Rename-Computer -NewName 'Ahmed-Ramadan' -Force -Restart\"",
-  #  unless  => "${powershell_path} -Command \"(Get-WmiObject -Class Win32_ComputerSystem).Name -eq 'Ahmed-Ramadan'\"",
-   # logoutput => true,
-  #}
- #}
-
-#node 'cargas'{
-  # Define PowerShell path for ease of use
- # $powershell_path = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
-#exec { 'Rename Computer':
- #   command => "${powershell_path} -Command \"Rename-Computer -NewName 'mohamed-yousri' -Force -Restart\"",
-  #  unless  => "${powershell_path} -Command \"(Get-WmiObject -Class Win32_ComputerSystem).Name -eq 'mohamed-yousri'\"",
-   # logoutput => true,
-  #}
- #}
-
