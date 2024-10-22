@@ -1,8 +1,6 @@
 node 'default' {
   # Define CMD and PowerShell path for ease of use
   $powershell_path = 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
-$cmd = 'C:\Windows\System32\cmd.exe'
-
 
   #T1 Pin "This PC" to Taskbar
   exec { 'Pin This PC':
@@ -121,19 +119,28 @@ $cmd = 'C:\Windows\System32\cmd.exe'
   }
 #T18 Ensure the USB drive (D:) is available
 exec { 'Check USB Drive':
-  command   => '${cmd} /c "if exist D:\ (echo USB drive found) else (echo USB drive not found)"',
+  command   => 'c:\Windows\System32\cmd.exe /c "if exist D:\ (echo USB drive found) else (echo USB drive not found)"',
   logoutput => true,
 }
 
 exec { 'Install Python from USB':
-  command   => 'D:\\MiniPC\\python-3.12.6-amd64.exe /silent',  # Adjust the installation command as needed
+  command   => 'D:\\MiniPC\\python-3.10.9-amd64.exe /silent',  # Adjust the installation command as needed
   logoutput => true,
+  onlyif    => 'c:\Windows\System32\cmd.exe /c "where python || exit 1"',
+  require   => Exec['Check USB Drive'],
+}
+
+exec { 'Install SSMS from USB':
+  command   => 'D:\\MiniPC\\SQL\\SSMS-Setup-ENU.exe /silent',  # Adjust the installation command as needed
+  logoutput => true,
+  onlyif    => 'c:\Windows\System32\cmd.exe /c "if not exist "C:\\Program Files (x86)\\Microsoft SQL Server Management Studio 18.0\\Common7\\IDE\\Ssms.exe" exit 1"',
   require   => Exec['Check USB Drive'],
 }
 
 exec { 'Install SQL from USB':
-  command   => 'D:\\MiniPC\\SQL\\SSMS-Setup-ENU.exe /silent',  # Adjust the installation command as needed
+  command   => 'D:\\MiniPC\\SQL\\SQLEXPR_x64_ENU\\SETUPT.exe /silent',  # Adjust the installation command as needed
   logoutput => true,
+  onlyif    => 'c:\Windows\System32\cmd.exe /c "if not exist "C:\\Program Files\\Microsoft SQL Server\\150\\Setup Bootstrap\\Release\\setup.exe" exit 1"',
   require   => Exec['Check USB Drive'],
 }
 
