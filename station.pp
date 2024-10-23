@@ -169,7 +169,7 @@ exec { 'install python-math':
 exec { 'Install SSMS from USB':
   command   => 'D:\\MiniPC\\SQL\\SSMS-Setup-ENU.exe /silent',  # Adjust the installation command as needed
   logoutput => true,
-  onlyif    => 'c:\Windows\System32\cmd.exe /c "if not exist "C:\\Program Files (x86)\\Microsoft SQL Server Management Studio 18.0\\Common7\\IDE\\Ssms.exe" exit 1"',
+ #onlyif    => 'c:\Windows\System32\cmd.exe /c "if not exist "C:\\Program Files (x86)\\Microsoft SQL Server Management Studio 18.0\\Common7\\IDE\\Ssms.exe" exit 1"',
   require   => Exec['Check USB Drive'],
 }
 
